@@ -1,0 +1,154 @@
+@page "/reminders"
+@attribute [Authorize(Roles = "Family")]
+@inject AppDbContext Db
+@inject INotificationService NotificationSvc
+@inject AuthenticationStateProvider AuthState
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using System.Security.Claims
+
+<PageTitle>Reminders</PageTitle>
+
+<div class="page-header">
+    <h1>⏰ Reminders</h1>
+    <button class="btn btn-primary" @onclick="() => showForm = true">+ Add Reminder</button>
+</div>
+
+@if (showForm)
+{
+    <div class="modal-overlay">
+        <div class="modal-card">
+            <h2>New Reminder</h2>
+            <EditForm Model="formModel" OnValidSubmit="SaveReminder">
+                <DataAnnotationsValidator />
+                <div class="form-group">
+                    <label>Title</label>
+                    <InputText @bind-Value="formModel.Title" class="form-control" />
+                    <ValidationMessage For="() => formModel.Title" />
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <InputTextArea @bind-Value="formModel.Description" class="form-control" rows="3" />
+                </div>
+                <div class="form-group">
+                    <label>Date & Time</label>
+                    <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="formModel.ReminderDate" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label>Recurrence</label>
+                    <InputSelect @bind-Value="formModel.Recurrence" class="form-control">
+                        <option value="@ReminderRecurrence.None">None (One-time)</option>
+                        <option value="@ReminderRecurrence.Daily">Daily</option>
+                        <option value="@ReminderRecurrence.Weekly">Weekly</option>
+                        <option value="@ReminderRecurrence.Monthly">Monthly</option>
+                        <option value="@ReminderRecurrence.Yearly">Yearly</option>
+                    </InputSelect>
+                </div>
+                <div class="form-checks">
+                    <label><InputCheckbox @bind-Value="formModel.SendEmail" /> Send Email</label>
+                    <label><InputCheckbox @bind-Value="formModel.SendPush" /> Send Push Notification</label>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" @onclick="() => showForm = false">Cancel</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div class="tabs">
+    <button class="tab @(showCompleted ? "" : "active")" @onclick="() => showCompleted = false">Upcoming</button>
+    <button class="tab @(showCompleted ? "active" : "")" @onclick="() => showCompleted = true">Completed</button>
+</div>
+
+<div class="reminder-list">
+    @foreach (var r in FilteredReminders)
+    {
+        <div class="reminder-card @(r.IsCompleted ? "completed" : IsOverdue(r) ? "overdue" : "upcoming")">
+            <div class="reminder-status">
+                @if (!r.IsCompleted)
+                {
+                    <button class="btn-check" @onclick="() => MarkComplete(r.Id)">✓</button>
+                }
+                else
+                {
+                    <span class="done-icon">✅</span>
+                }
+            </div>
+            <div class="reminder-content">
+                <h3>@r.Title</h3>
+                @if (!string.IsNullOrEmpty(r.Description))
+                {
+                    <p>@r.Description</p>
+                }
+                <div class="reminder-meta">
+                    <span>📅 @r.ReminderDate.ToLocalTime().ToString("ddd, MMM dd yyyy HH:mm")</span>
+                    @if (r.IsRecurring)
+                    {
+                        <span class="badge-recurring">🔄 @r.Recurrence</span>
+                    }
+                    @if (r.SendEmail) { <span title="Email notification">📧</span> }
+                    @if (r.SendPush) { <span title="Push notification">🔔</span> }
+                </div>
+            </div>
+            <button class="btn-icon btn-danger" @onclick="() => DeleteReminder(r.Id)">🗑️</button>
+        </div>
+    }
+</div>
+
+@if (!FilteredReminders.Any())
+{
+    <div class="empty-state">
+        <p>@(showCompleted ? "No completed reminders." : "No upcoming reminders. Add one!")</p>
+    </div>
+}
+
+@code {
+    private List<Reminder> reminders = [];
+    private Reminder formModel = new() { ReminderDate = DateTime.Now.AddHours(1) };
+    private bool showForm = false;
+    private bool showCompleted = false;
+    private string? userId;
+
+    private IEnumerable<Reminder> FilteredReminders => reminders
+        .Where(r => r.IsCompleted == showCompleted)
+        .OrderBy(r => r.ReminderDate);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        userId = auth.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        await LoadReminders();
+    }
+
+    private async Task LoadReminders()
+    {
+        reminders = await Db.Reminders.OrderBy(r => r.ReminderDate).ToListAsync();
+    }
+
+    private async Task SaveReminder()
+    {
+        formModel.IsRecurring = formModel.Recurrence != ReminderRecurrence.None;
+        formModel.CreatedByUserId = userId ?? string.Empty;
+        Db.Reminders.Add(formModel);
+        await Db.SaveChangesAsync();
+        await LoadReminders();
+        showForm = false;
+        formModel = new() { ReminderDate = DateTime.Now.AddHours(1) };
+    }
+
+    private async Task MarkComplete(int id)
+    {
+        var r = await Db.Reminders.FindAsync(id);
+        if (r != null) { r.IsCompleted = true; await Db.SaveChangesAsync(); await LoadReminders(); }
+    }
+
+    private async Task DeleteReminder(int id)
+    {
+        var r = await Db.Reminders.FindAsync(id);
+        if (r != null) { Db.Reminders.Remove(r); await Db.SaveChangesAsync(); await LoadReminders(); }
+    }
+
+    private bool IsOverdue(Reminder r) => !r.IsCompleted && r.ReminderDate < DateTime.UtcNow;
+}

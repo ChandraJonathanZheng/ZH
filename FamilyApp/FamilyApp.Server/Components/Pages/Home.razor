@@ -1,0 +1,50 @@
+@page "/"
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+<PageTitle>Home - Family App</PageTitle>
+
+<div class="page-header">
+    <h1>Welcome to Family App 🏠</h1>
+    <p>Your family's digital hub</p>
+</div>
+
+<AuthorizeView Roles="Family">
+    <Authorized>
+        <div class="dashboard-grid">
+            <a href="/family-members" class="dashboard-card">
+                <div class="card-icon">👨‍👩‍👧‍👦</div>
+                <h3>Family Members</h3>
+                <p>View and manage family info</p>
+            </a>
+            <a href="/restaurants" class="dashboard-card">
+                <div class="card-icon">🍽️</div>
+                <h3>Restaurants</h3>
+                <p>Nearby dining options</p>
+            </a>
+            <a href="/reminders" class="dashboard-card">
+                <div class="card-icon">⏰</div>
+                <h3>Reminders</h3>
+                <p>Never miss an event</p>
+            </a>
+            <a href="/financial" class="dashboard-card">
+                <div class="card-icon">💰</div>
+                <h3>Financial</h3>
+                <p>Track income & expenses</p>
+            </a>
+        </div>
+    </Authorized>
+</AuthorizeView>
+
+<AuthorizeView Roles="Guest">
+    <Authorized>
+        <div class="dashboard-grid">
+            <a href="/restaurants" class="dashboard-card">
+                <div class="card-icon">🍽️</div>
+                <h3>Restaurants</h3>
+                <p>Browse nearby restaurants</p>
+            </a>
+        </div>
+        <p class="guest-note">You are logged in as a Guest. Contact the family admin for full access.</p>
+    </Authorized>
+</AuthorizeView>

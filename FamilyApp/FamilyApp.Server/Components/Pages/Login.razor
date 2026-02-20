@@ -1,0 +1,100 @@
+@page "/login"
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Login - Family App</PageTitle>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="auth-icon">🏠</span>
+            <h1>Family App</h1>
+            <p>Please login to continue</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-error">@errorMessage</div>
+        }
+
+        <EditForm Model="model" OnValidSubmit="HandleLogin" FormName="LoginForm">
+            <DataAnnotationsValidator />
+
+            <div class="form-group">
+                <label>Email</label>
+                <InputText @bind-Value="model.Email" class="form-control" placeholder="your@email.com" />
+                <ValidationMessage For="() => model.Email" />
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <InputText @bind-Value="model.Password" type="password" class="form-control" placeholder="••••••••" />
+                <ValidationMessage For="() => model.Password" />
+            </div>
+
+            <div class="form-check">
+                <InputCheckbox @bind-Value="model.RememberMe" id="remember" />
+                <label for="remember">Remember me</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <span>Logging in...</span>
+                }
+                else
+                {
+                    <span>Login</span>
+                }
+            </button>
+        </EditForm>
+
+        <div class="auth-footer">
+            <p>Guest access is restricted to Restaurants only.</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginModel model = new();
+    private string? errorMessage;
+    private bool isLoading = false;
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    private async Task HandleLogin()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        var result = await SignInManager.PasswordSignInAsync(
+            model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+
+        if (result.Succeeded)
+        {
+            var returnUrl = !string.IsNullOrEmpty(ReturnUrl) ? Uri.UnescapeDataString(ReturnUrl) : "/";
+            Navigation.NavigateTo(returnUrl, forceLoad: true);
+        }
+        else
+        {
+            errorMessage = "Invalid email or password. Please try again.";
+            isLoading = false;
+        }
+    }
+
+    private class LoginModel
+    {
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Password { get; set; } = string.Empty;
+
+        public bool RememberMe { get; set; }
+    }
+}

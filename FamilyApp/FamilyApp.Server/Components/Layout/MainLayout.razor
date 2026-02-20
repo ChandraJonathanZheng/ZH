@@ -1,0 +1,71 @@
+@inherits LayoutComponentBase
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+<div class="app-layout">
+    <nav class="sidebar">
+        <div class="brand">
+            <span class="brand-icon">🏠</span>
+            <span class="brand-name">Family App</span>
+        </div>
+
+        <AuthorizeView>
+            <Authorized>
+                <ul class="nav-menu">
+                    <li>
+                        <NavLink href="/" Match="NavLinkMatch.All">
+                            <span class="nav-icon">🏡</span> Home
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink href="/restaurants">
+                            <span class="nav-icon">🍽️</span> Restaurants
+                        </NavLink>
+                    </li>
+
+                    <AuthorizeView Roles="Family">
+                        <Authorized>
+                            <li>
+                                <NavLink href="/family-members">
+                                    <span class="nav-icon">👨‍👩‍👧‍👦</span> Family Members
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink href="/reminders">
+                                    <span class="nav-icon">⏰</span> Reminders
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink href="/financial">
+                                    <span class="nav-icon">💰</span> Financial
+                                </NavLink>
+                            </li>
+                        </Authorized>
+                    </AuthorizeView>
+                </ul>
+
+                <div class="sidebar-footer">
+                    <NotificationBell />
+                    <form method="post" action="/logout">
+                        <AntiforgeryToken />
+                        <button type="submit" class="logout-btn">Logout</button>
+                    </form>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="nav-guest">
+                    <NavLink href="/restaurants">🍽️ Restaurants</NavLink>
+                    <NavLink href="/login">🔐 Login</NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </nav>
+
+    <main class="main-content">
+        @Body
+    </main>
+</div>
+
+@code {
+    // Layout logic handled by components
+}

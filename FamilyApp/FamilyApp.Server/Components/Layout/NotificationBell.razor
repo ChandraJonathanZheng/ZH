@@ -1,0 +1,68 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@inject INotificationService NotificationSvc
+@inject AuthenticationStateProvider AuthState
+@rendermode InteractiveServer
+
+<div class="notification-bell">
+    <button class="bell-btn" @onclick="TogglePanel">
+        🔔
+        @if (unreadCount > 0)
+        {
+            <span class="badge">@unreadCount</span>
+        }
+    </button>
+
+    @if (showPanel)
+    {
+        <div class="notification-panel">
+            <h4>Notifications</h4>
+            @if (!notifications.Any())
+            {
+                <p class="empty">No notifications</p>
+            }
+            else
+            {
+                @foreach (var n in notifications.Take(10))
+                {
+                    <div class="notification-item @(n.IsRead ? "read" : "unread")"
+                         @onclick="() => MarkRead(n.Id)">
+                        <strong>@n.Title</strong>
+                        <p>@n.Message</p>
+                        <small>@n.CreatedAt.ToLocalTime().ToString("MMM dd, HH:mm")</small>
+                    </div>
+                }
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<Notification> notifications = [];
+    private int unreadCount = 0;
+    private bool showPanel = false;
+    private string? userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        userId = auth.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (userId != null)
+            await LoadNotificationsAsync();
+    }
+
+    private async Task LoadNotificationsAsync()
+    {
+        if (userId == null) return;
+        notifications = await NotificationSvc.GetUserNotificationsAsync(userId);
+        unreadCount = notifications.Count(n => !n.IsRead);
+    }
+
+    private void TogglePanel() => showPanel = !showPanel;
+
+    private async Task MarkRead(int id)
+    {
+        await NotificationSvc.MarkAsReadAsync(id);
+        await LoadNotificationsAsync();
+    }
+}

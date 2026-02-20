@@ -1,0 +1,163 @@
+@page "/family-members"
+@attribute [Authorize(Roles = "Family")]
+@inject AppDbContext Db
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Family Members</PageTitle>
+
+<div class="page-header">
+    <h1>👨‍👩‍👧‍👦 Family Members</h1>
+    <button class="btn btn-primary" @onclick="() => showForm = true">+ Add Member</button>
+</div>
+
+@if (showForm)
+{
+    <div class="modal-overlay">
+        <div class="modal-card">
+            <h2>@(editingId == 0 ? "Add" : "Edit") Family Member</h2>
+            <EditForm Model="formModel" OnValidSubmit="SaveMember">
+                <DataAnnotationsValidator />
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <InputText @bind-Value="formModel.FullName" class="form-control" />
+                    <ValidationMessage For="() => formModel.FullName" />
+                </div>
+                <div class="form-group">
+                    <label>Relationship</label>
+                    <InputSelect @bind-Value="formModel.Relationship" class="form-control">
+                        <option value="">-- Select --</option>
+                        <option>Father</option>
+                        <option>Mother</option>
+                        <option>Son</option>
+                        <option>Daughter</option>
+                        <option>Grandfather</option>
+                        <option>Grandmother</option>
+                        <option>Uncle</option>
+                        <option>Aunt</option>
+                    </InputSelect>
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <InputDate @bind-Value="formModel.DateOfBirth" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <InputText @bind-Value="formModel.PhoneNumber" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <InputText @bind-Value="formModel.Email" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <InputTextArea @bind-Value="formModel.Notes" class="form-control" rows="3" />
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" @onclick="CancelForm">Cancel</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div class="members-grid">
+    @foreach (var member in members)
+    {
+        <div class="member-card">
+            <div class="member-avatar">@member.FullName[0]</div>
+            <div class="member-info">
+                <h3>@member.FullName</h3>
+                <span class="badge-relationship">@member.Relationship</span>
+                <p>🎂 @member.DateOfBirth.ToString("MMM dd, yyyy")</p>
+                @if (!string.IsNullOrEmpty(member.PhoneNumber))
+                {
+                    <p>📞 @member.PhoneNumber</p>
+                }
+                @if (!string.IsNullOrEmpty(member.Email))
+                {
+                    <p>✉️ @member.Email</p>
+                }
+            </div>
+            <div class="member-actions">
+                <button class="btn-icon" @onclick="() => EditMember(member)">✏️</button>
+                <button class="btn-icon btn-danger" @onclick="() => DeleteMember(member.Id)">🗑️</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<FamilyMember> members = [];
+    private FamilyMember formModel = new();
+    private bool showForm = false;
+    private int editingId = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMembers();
+    }
+
+    private async Task LoadMembers()
+    {
+        members = await Db.FamilyMembers.OrderBy(m => m.FullName).ToListAsync();
+    }
+
+    private async Task SaveMember()
+    {
+        if (editingId == 0)
+        {
+            Db.FamilyMembers.Add(formModel);
+        }
+        else
+        {
+            var existing = await Db.FamilyMembers.FindAsync(editingId);
+            if (existing != null)
+            {
+                existing.FullName = formModel.FullName;
+                existing.Relationship = formModel.Relationship;
+                existing.DateOfBirth = formModel.DateOfBirth;
+                existing.PhoneNumber = formModel.PhoneNumber;
+                existing.Email = formModel.Email;
+                existing.Notes = formModel.Notes;
+            }
+        }
+        await Db.SaveChangesAsync();
+        await LoadMembers();
+        CancelForm();
+    }
+
+    private void EditMember(FamilyMember m)
+    {
+        editingId = m.Id;
+        formModel = new FamilyMember
+        {
+            FullName = m.FullName,
+            Relationship = m.Relationship,
+            DateOfBirth = m.DateOfBirth,
+            PhoneNumber = m.PhoneNumber,
+            Email = m.Email,
+            Notes = m.Notes
+        };
+        showForm = true;
+    }
+
+    private async Task DeleteMember(int id)
+    {
+        var member = await Db.FamilyMembers.FindAsync(id);
+        if (member != null)
+        {
+            Db.FamilyMembers.Remove(member);
+            await Db.SaveChangesAsync();
+            await LoadMembers();
+        }
+    }
+
+    private void CancelForm()
+    {
+        showForm = false;
+        editingId = 0;
+        formModel = new();
+    }
+}
