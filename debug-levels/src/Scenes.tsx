@@ -706,7 +706,7 @@ export const CTA: React.FC = () => {
         ))}
       </div>
       <Reveal at={at(id, 1)} from="up">
-        <Pill color="#fff" size={56}>
+        <Pill color="#fff" size={48} style={{ whiteSpace: "nowrap" }}>
           💬 comment below · be honest 👇
         </Pill>
       </Reveal>
