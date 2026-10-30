@@ -1,0 +1,216 @@
+[
+  {
+    "id": "hook",
+    "seconds": 4.704,
+    "frames": 142,
+    "lines": [
+      {
+        "text": "There are 7 levels of debugging.",
+        "file": "voiceover/hook-0.mp3",
+        "start": 0.15,
+        "dur": 1.924
+      },
+      {
+        "text": "Most devs are stuck at level 2.",
+        "file": "voiceover/hook-1.mp3",
+        "start": 2.194,
+        "dur": 1.91
+      }
+    ]
+  },
+  {
+    "id": "intro",
+    "seconds": 5.098,
+    "frames": 153,
+    "lines": [
+      {
+        "text": "I'm Chandra, a full stack developer for 10 years.",
+        "file": "voiceover/intro-0.mp3",
+        "start": 0.15,
+        "dur": 2.892
+      },
+      {
+        "text": "Let me show you something.",
+        "file": "voiceover/intro-1.mp3",
+        "start": 3.162,
+        "dur": 1.336
+      }
+    ]
+  },
+  {
+    "id": "l1",
+    "seconds": 4.991,
+    "frames": 150,
+    "lines": [
+      {
+        "text": "Level 1: console.log('here').",
+        "file": "voiceover/l1-0.mp3",
+        "start": 0.15,
+        "dur": 2.227
+      },
+      {
+        "text": "Then 'here2'. Then 'HERE PLEASE'.",
+        "file": "voiceover/l1-1.mp3",
+        "start": 2.497,
+        "dur": 1.894
+      }
+    ]
+  },
+  {
+    "id": "l2",
+    "seconds": 6.154,
+    "frames": 185,
+    "lines": [
+      {
+        "text": "Level 2: the debugger.",
+        "file": "voiceover/l2-0.mp3",
+        "start": 0.15,
+        "dur": 1.507
+      },
+      {
+        "text": "You set one breakpoint, panic,",
+        "file": "voiceover/l2-1.mp3",
+        "start": 1.777,
+        "dur": 1.751
+      },
+      {
+        "text": "and go back to console.log.",
+        "file": "voiceover/l2-2.mp3",
+        "start": 3.648,
+        "dur": 1.906
+      }
+    ]
+  },
+  {
+    "id": "l3",
+    "seconds": 6.605,
+    "frames": 199,
+    "lines": [
+      {
+        "text": "Level 3: the rubber duck.",
+        "file": "voiceover/l3-0.mp3",
+        "start": 0.15,
+        "dur": 1.716
+      },
+      {
+        "text": "You explain the bug out loud,",
+        "file": "voiceover/l3-1.mp3",
+        "start": 1.986,
+        "dur": 1.781
+      },
+      {
+        "text": "and fix it before you finish the sentence.",
+        "file": "voiceover/l3-2.mp3",
+        "start": 3.887,
+        "dur": 2.118
+      }
+    ]
+  },
+  {
+    "id": "l4",
+    "seconds": 5.943,
+    "frames": 179,
+    "lines": [
+      {
+        "text": "Level 4: you read the error message. All of it.",
+        "file": "voiceover/l4-0.mp3",
+        "start": 0.15,
+        "dur": 2.698
+      },
+      {
+        "text": "Turns out it told you exactly what was wrong.",
+        "file": "voiceover/l4-1.mp3",
+        "start": 2.968,
+        "dur": 2.375
+      }
+    ]
+  },
+  {
+    "id": "l5",
+    "seconds": 6.906,
+    "frames": 208,
+    "lines": [
+      {
+        "text": "Level 5: git bisect.",
+        "file": "voiceover/l5-0.mp3",
+        "start": 0.15,
+        "dur": 1.707
+      },
+      {
+        "text": "You binary-search your own history",
+        "file": "voiceover/l5-1.mp3",
+        "start": 1.977,
+        "dur": 1.806
+      },
+      {
+        "text": "to find which past-you ruined everything.",
+        "file": "voiceover/l5-2.mp3",
+        "start": 3.903,
+        "dur": 2.403
+      }
+    ]
+  },
+  {
+    "id": "l6",
+    "seconds": 5.384,
+    "frames": 162,
+    "lines": [
+      {
+        "text": "Level 6: you take a walk,",
+        "file": "voiceover/l6-0.mp3",
+        "start": 0.15,
+        "dur": 1.753
+      },
+      {
+        "text": "and the fix shows up in the shower 20 minutes later.",
+        "file": "voiceover/l6-1.mp3",
+        "start": 2.023,
+        "dur": 2.761
+      }
+    ]
+  },
+  {
+    "id": "l7",
+    "seconds": 7.68,
+    "frames": 231,
+    "lines": [
+      {
+        "text": "Level 7: you open the bug, stare at it,",
+        "file": "voiceover/l7-0.mp3",
+        "start": 0.15,
+        "dur": 2.334
+      },
+      {
+        "text": "and it fixes itself.",
+        "file": "voiceover/l7-1.mp3",
+        "start": 2.604,
+        "dur": 1.307
+      },
+      {
+        "text": "Nobody knows why. Never touch it again.",
+        "file": "voiceover/l7-2.mp3",
+        "start": 4.031,
+        "dur": 2.449
+      }
+    ]
+  },
+  {
+    "id": "cta",
+    "seconds": 3.913,
+    "frames": 118,
+    "lines": [
+      {
+        "text": "Comment your level.",
+        "file": "voiceover/cta-0.mp3",
+        "start": 0.15,
+        "dur": 1.191
+      },
+      {
+        "text": "Be honest.",
+        "file": "voiceover/cta-1.mp3",
+        "start": 1.461,
+        "dur": 0.852
+      }
+    ]
+  }
+]
