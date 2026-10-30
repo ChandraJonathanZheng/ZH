@@ -81,10 +81,95 @@ def boing():
     return np.sin(2 * np.pi * np.cumsum(freq) / SR) * env(len(x), 0.003, 4.5)
 
 
+def click():
+    # breakpoint click: tiny high tick + low body
+    x = t(0.05)
+    return np.sin(2 * np.pi * 2400 * x) * env(len(x), 0.0005, 120) + 0.5 * np.sin(2 * np.pi * 300 * x) * env(len(x), 0.001, 60)
+
+
+def tick():
+    x = t(0.03)
+    return sosfilt(butter(2, [2500, 7000], btype="band", fs=SR, output="sos"), rng.standard_normal(len(x))) * env(len(x), 0.0003, 220)
+
+
+def key():
+    return typing()[: int(1.6 * SR)]
+
+
+def quack():
+    # nasal buzz with a falling pitch, band-passed like a toy duck
+    x = t(0.22)
+    freq = 620 - 220 * x / 0.22
+    saw = 2 * ((np.cumsum(freq) / SR) % 1) - 1
+    s = sosfilt(butter(2, [900, 2600], btype="band", fs=SR, output="sos"), saw)
+    return s * np.sin(np.pi * np.arange(len(x)) / len(x)) ** 0.6
+
+
+def error():
+    # short two-tone system alert, softened square
+    parts = []
+    for f in (880, 660):
+        x = t(0.11)
+        sq = np.tanh(4 * np.sin(2 * np.pi * f * x))
+        parts.append(sq * env(len(x), 0.002, 14))
+    return np.concatenate(parts)
+
+
+def steps():
+    out = np.zeros(int(1.6 * SR))
+    lp = butter(2, 400, fs=SR, output="sos")
+    for i in range(4):
+        n = int(0.09 * SR)
+        thump = sosfilt(lp, rng.standard_normal(n)) * env(n, 0.002, 45)
+        p0 = int(i * 0.36 * SR)
+        out[p0:p0 + n] += thump * (1 - i * 0.18)
+    return out
+
+
+def impact():
+    # subtle low thud, not a trailer boom
+    x = t(0.6)
+    body = sweep(110, 45, 0.6) * env(len(x), 0.002, 9)
+    snap = sosfilt(butter(2, 1800, fs=SR, output="sos"), rng.standard_normal(len(x))) * env(len(x), 0.0005, 60)
+    return body + 0.35 * snap
+
+
+def music():
+    """Quiet lo-fi bed: soft kick, hats, Am7-Fmaj7-C-G pad at 90 bpm, loops cleanly."""
+    bpm = 90
+    beat = 60 / bpm
+    bars = 8
+    n = int(bars * 4 * beat * SR)
+    out = np.zeros(n)
+    chords = [[220, 261.6, 329.6, 392], [174.6, 220, 261.6, 329.6], [130.8, 196, 261.6, 329.6], [196, 246.9, 293.7, 392]]
+    for b in range(bars):
+        f = chords[b % 4]
+        s0 = int(b * 4 * beat * SR)
+        L = int(4 * beat * SR)
+        x = np.arange(L) / SR
+        pad = sum(np.sin(2 * np.pi * fr * x) + 0.3 * np.sin(4 * np.pi * fr * x) for fr in f)
+        pad *= np.minimum(x / 0.3, 1) * np.minimum((4 * beat - x) / 0.3, 1)
+        out[s0:s0 + L] += 0.12 * pad
+        bass = np.sin(2 * np.pi * f[0] / 2 * x) * np.minimum(x / 0.02, 1) * np.exp(-1.2 * x)
+        out[s0:s0 + L] += 0.35 * bass
+    for k in range(bars * 4):
+        p0 = int(k * beat * SR)
+        if k % 2 == 0:
+            kick = sweep(120, 45, 0.25) * env(int(0.25 * SR), 0.002, 18)
+            out[p0:p0 + len(kick)] += 0.6 * kick
+        for h in (0, 0.5):
+            hp0 = p0 + int(h * beat * SR)
+            hat = tick() * 0.12
+            out[hp0:hp0 + len(hat)] += hat
+    return sosfilt(butter(2, 3500, fs=SR, output="sos"), out)
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     for name, fn in [("pop", pop), ("whoosh", whoosh), ("typing", typing), ("boom", boom),
-                     ("ding", ding), ("sparkle", sparkle), ("boing", boing)]:
+                     ("ding", ding), ("sparkle", sparkle), ("boing", boing),
+                     ("click", click), ("tick", tick), ("key", key), ("quack", quack), ("error", error),
+                     ("steps", steps), ("impact", impact), ("music", music)]:
         s = fn()
         s = 0.9 * s / np.max(np.abs(s))
         wav = os.path.join(OUT, name + ".wav")

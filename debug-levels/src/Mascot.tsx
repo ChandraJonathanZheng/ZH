@@ -273,14 +273,15 @@ export const Mascot: React.FC<{
   talking: boolean;
   frame: number;
   width?: number;
-}> = ({ pose, talking, frame, width = 440 }) => {
+  still?: boolean; // no idle sway: for deadpan moments
+}> = ({ pose, talking, frame, width = 440, still = false }) => {
   const { mood } = pose;
   const blinkCycle = frame % 96;
   const blink = blinkCycle < 4 ? 0.12 : 1;
   const talk = talking ? 0.5 + 0.5 * Math.sin(frame * 1.15) : 0;
   const swing = pose.walking ? Math.sin(pose.walkPhase) * 24 : 0;
   const armSwing = pose.walking ? Math.sin(pose.walkPhase) * 14 : 0;
-  const idleSway = Math.sin(frame / 22) * 2.2;
+  const idleSway = still ? 0 : Math.sin(frame / 22) * 2.2;
   const talkNod = talking ? Math.sin(frame * 0.4) * 2 : 0;
 
   return (
