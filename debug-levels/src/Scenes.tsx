@@ -52,7 +52,7 @@ export const Hook: React.FC = () => {
       punches={[flipStart, at(id, 1), danger]}
     >
       {!flipping && (
-        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0 26px", width: 900 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "baseline", gap: "0 26px", width: 900 }}>
           {HOOK_WORDS.map((w, i) => (
             <Reveal key={w} at={0.05 + i * 0.3} from="up">
               <Big size={w === "7 LEVELS" ? 150 : 110} color={w === "7 LEVELS" ? C.yellow : "#fff"}>
@@ -592,7 +592,11 @@ export const CTA: React.FC = () => {
         </Big>
       </Reveal>
       <Reveal at={0.55} from="up">
-        <Big size={96}>WHAT LEVEL ARE YOU? 💀</Big>
+        <Big size={100}>
+          WHAT LEVEL
+          <br />
+          ARE YOU? 💀
+        </Big>
       </Reveal>
       <div style={{ display: "flex", gap: 16 }}>
         {[1, 2, 3, 4, 5, 6, 7].map((n, i) => (

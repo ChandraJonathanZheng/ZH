@@ -233,45 +233,37 @@ export const LevelTag: React.FC<{ n: number; label: string; color: string }> = (
   );
 };
 
-// The comedy escalation: a rank stamp that slaps on, slightly rotated.
-export const Rank: React.FC<{ at: number; children: React.ReactNode; color: string; style?: React.CSSProperties }> = ({
-  at: t,
-  children,
-  color,
-  style,
-}) => {
+// The comedy escalation: a rank stamp that slaps on under the level title.
+// It always reserves its row, so nothing jumps when it appears.
+export const Rank: React.FC<{ at: number; children: React.ReactNode; color: string }> = ({ at: t, children, color }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const f0 = Math.round(t * fps);
-  if (frame < f0) return null;
-  const p = spring({ frame: frame - f0, fps, config: { damping: 12, stiffness: 300 } });
+  const p = frame < f0 ? 0 : spring({ frame: frame - f0, fps, config: { damping: 12, stiffness: 300 } });
   return (
-    <>
+    <div style={{ height: 70, marginTop: -14, display: "flex", alignItems: "center" }}>
       <Sound at={t} sfx="tick" />
-      <div
-        style={{
-          position: "absolute",
-          right: 0,
-          top: 150,
-          rotate: "6deg",
-          scale: String(1.6 - 0.6 * p),
-          opacity: Math.min(1, p * 2),
-          border: `5px solid ${color}`,
-          color,
-          borderRadius: 14,
-          padding: "6px 18px",
-          fontFamily: FONT,
-          fontWeight: 900,
-          fontSize: 40,
-          letterSpacing: 3,
-          whiteSpace: "nowrap",
-          background: C.bg,
-          ...style,
-        }}
-      >
-        {children}
-      </div>
-    </>
+      {frame >= f0 && (
+        <div
+          style={{
+            rotate: "-3deg",
+            scale: String(1.6 - 0.6 * p),
+            opacity: Math.min(1, p * 2),
+            border: `4px solid ${color}`,
+            color,
+            borderRadius: 12,
+            padding: "4px 18px",
+            fontFamily: FONT,
+            fontWeight: 900,
+            fontSize: 38,
+            letterSpacing: 3,
+            whiteSpace: "nowrap",
+          }}
+        >
+          {children}
+        </div>
+      )}
+    </div>
   );
 };
 
