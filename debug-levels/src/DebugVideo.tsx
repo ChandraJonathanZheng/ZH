@@ -1,7 +1,7 @@
 import React from "react";
 import { Audio } from "@remotion/media";
 import { AbsoluteFill, interpolate, Series, staticFile } from "remotion";
-import { VO } from "./kit";
+import { at, end, VO } from "./kit";
 import { CTA, Hook, Intro, L1, L2, L3, L4, L5, L6, L7 } from "./Scenes";
 
 const SCENES: Record<string, React.FC> = {
@@ -30,13 +30,18 @@ const startOf = (id: string) => {
   throw new Error(`No scene ${id}`);
 };
 
-// Quiet music bed. It cuts out for Level 7 (silence is the punchline)
-// and comes back softly for the CTA.
+// Quiet music bed. In Level 7 it ducks to near-silence across "It works."
+// (silence is the punchline) and comes back softly for the CTA.
 const MUSIC = 0.07;
 const musicVolume = (f: number) => {
   const l7 = startOf("l7");
   const cta = startOf("cta");
-  const v = f < l7 ? MUSIC : f < cta ? 0 : interpolate(f, [cta, cta + 10], [0, MUSIC], { extrapolateRight: "clamp" });
+  const duckFrom = l7 + at("l7", 1) * 30;
+  const duckTo = l7 + end("l7", 1) * 30;
+  const v =
+    f < cta
+      ? interpolate(f, [duckFrom, duckTo], [MUSIC, 0.003], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+      : interpolate(f, [cta, cta + 10], [0, MUSIC], { extrapolateRight: "clamp" });
   return interpolate(f, [TOTAL_FRAMES - 15, TOTAL_FRAMES], [v, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 };
 

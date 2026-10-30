@@ -27,64 +27,45 @@ const Type: React.FC<{ text: string; from: number; cps?: number; style?: React.C
   );
 };
 
-/* ---------------- HOOK: premise first, tease Level 7 ---------------- */
-const HOOK_WORDS = ["THERE", "ARE", "7 LEVELS", "OF", "DEBUGGING."];
-
+/* ---------------- HOOK: ~1 s premise, open loop on Level 7 ---------------- */
 export const Hook: React.FC = () => {
   const id = "hook";
-  const { t } = useT();
-  // LEVEL 1..7 counter flips in the pause between the two lines.
-  const flipStart = end(id, 0, 0.02);
-  const flipStep = (at(id, 1) - flipStart) / 7;
-  const flipping = t >= flipStart;
-  const lvl = Math.min(7, 1 + Math.floor((t - flipStart) / flipStep));
-  const danger = at(id, 1, 1.25);
+  const { t, frame, fps } = useT();
+  const flipStart = 0.42;
+  const flipStep = 0.06;
+  const lvl = t < flipStart ? 0 : Math.min(7, 1 + Math.floor((t - flipStart) / flipStep));
+  const seven = flipStart + 6 * flipStep;
+  const sevenP = t >= seven ? spring({ frame: frame - Math.round(seven * fps), fps, config: { damping: 10, stiffness: 300 } }) : 0;
   return (
-    <Stage
-      id={id}
-      moves={{
-        keys: [
-          { t: 0, x: 230, mood: "happy", armR: -6 },
-          { t: at(id, 1), mood: "think", lookX: -0.6, lookY: -1 },
-          { t: danger, mood: "wow", armL: 30, armR: -30 },
-        ],
-      }}
-      punches={[flipStart, at(id, 1), danger]}
-    >
-      {!flipping && (
-        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "baseline", gap: "0 26px", width: 900 }}>
-          {HOOK_WORDS.map((w, i) => (
-            <Reveal key={w} at={0.05 + i * 0.3} from="up">
-              <Big size={w === "7 LEVELS" ? 150 : 110} color={w === "7 LEVELS" ? C.yellow : "#fff"}>
-                {w}
-              </Big>
-            </Reveal>
-          ))}
+    <Stage id={id} moves={{ keys: [{ t: 0, x: 230, mood: "think", lookX: -0.6, lookY: -1 }] }}>
+      <Reveal at={0}>
+        <Big size={170} color={C.yellow}>
+          7 LEVELS
+        </Big>
+      </Reveal>
+      <Reveal at={0.12} from="up">
+        <Big size={110}>OF DEBUGGING</Big>
+      </Reveal>
+      <Reveal at={0.2}>
+        <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 40, color: C.dim, whiteSpace: "nowrap" }}>
+          Every developer eventually reaches Level 7.
         </div>
-      )}
-      {flipping && (
-        <>
-          <Big size={200} color={lvl === 7 ? C.red : "#fff"}>
-            LEVEL {lvl}
+      </Reveal>
+      <div style={{ height: 190 }}>
+        {lvl > 0 && (
+          <Big size={180} color={lvl === 7 ? C.red : "#fff"} style={{ scale: String(1 + 0.12 * sevenP) }}>
+            {lvl}
           </Big>
-          <Reveal at={at(id, 1, 0.3)} from="up">
-            <Big size={70}>is where things get</Big>
-          </Reveal>
-          <Reveal at={danger} sfx="impact">
-            <Pill color={C.red} size={90} style={{ color: "#fff", rotate: "-3deg" }}>
-              DANGEROUS.
-            </Pill>
-          </Reveal>
-        </>
-      )}
+        )}
+      </div>
       {Array.from({ length: 7 }).map((_, i) => (
-        <Sound key={i} at={flipStart + i * flipStep} sfx="tick" />
+        <Sound key={i} at={flipStart + i * flipStep} sfx="tick" volume={0.2} />
       ))}
     </Stage>
   );
 };
 
-/* ---------------- INTRO: under 2 seconds ---------------- */
+/* ---------------- INTRO: ~1 s of branding, then straight back in ---------------- */
 export const Intro: React.FC = () => {
   const id = "intro";
   return (
@@ -93,15 +74,20 @@ export const Intro: React.FC = () => {
       moves={{
         keys: [
           { t: 0, x: 0, mood: "happy", armR: -150 },
-          { t: 1.2, armR: -10, mood: "wink" },
+          { t: 0.8, armR: -10, mood: "wink" },
         ],
-        sways: [{ from: 0, to: 1.1, hz: 3, armR: 22 }],
+        sways: [{ from: 0, to: 0.8, hz: 3, armR: 22 }],
       }}
     >
-      <Reveal at={0.1} from="up">
-        <Pill color={C.yellow} size={56}>
-          @chandratech92
-        </Pill>
+      <Reveal at={0}>
+        <Big size={110}>
+          <span style={{ color: C.yellow }}>10 YEARS</span>
+          <br />
+          OF DEBUGGING.
+        </Big>
+      </Reveal>
+      <Reveal at={0.15} from="up">
+        <div style={{ fontFamily: FONT, fontWeight: 800, fontSize: 48, color: C.dim }}>@chandratech92</div>
       </Reveal>
     </Stage>
   );
@@ -282,8 +268,11 @@ export const L3: React.FC = () => {
       level={3}
       moves={{
         keys: [
-          { t: 0, x: 0, mood: "happy" },
-          { t: 0.9, x: -190, lookX: 1, armR: -50 },
+          { t: 0, x: 0, mood: "happy", lean: 0, headRot: 0 },
+          // tiny awkward double-take when the duck slides in
+          { t: 0.5, mood: "wow", lookX: 1, lean: -6, headRot: 8 },
+          { t: 0.85, x: 0, mood: "happy", lean: 0, headRot: 0 },
+          { t: 1.3, x: -190, lookX: 1, armR: -50 },
           { t: at(id, 1), mood: "think", armR: -70 },
           { t: fixed, mood: "excited", armL: 120, armR: -120 },
         ],
@@ -467,12 +456,14 @@ export const L5: React.FC = () => {
   );
 };
 
-/* ---------------- LEVEL 6: literally walk out of frame ---------------- */
+/* ---------------- LEVEL 6: walk out, shower, "WAIT." ---------------- */
 export const L6: React.FC = () => {
   const id = "l6";
+  const { t } = useT();
   const walkOut = 0.25;
   const gone = 1.2;
   const shower = at(id, 1);
+  const wait = at(id, 2);
   return (
     <Stage
       id={id}
@@ -482,18 +473,43 @@ export const L6: React.FC = () => {
           { t: 0, x: 0, mood: "tired" },
           { t: walkOut, x: 0, mood: "happy" },
           { t: gone, x: 820 },
+          // pops straight back in: no walk, he just appears
+          { t: wait - 0.01, x: 820, mood: "wow", armR: -6 },
+          { t: wait, x: 170, armR: -150 },
         ],
+        hops: [{ t: wait, h: 25, d: 0.25 }],
       }}
-      punches={[shower]}
+      punches={[shower, wait]}
     >
-      <LevelTag n={6} label="take a walk" color={C.yellow} />
+      {t < shower && (
+        <>
+          <LevelTag n={6} label="take a walk" color={C.yellow} />
+          <Rank at={gone} color={C.yellow}>
+            THERAPY
+          </Rank>
+        </>
+      )}
+      {t >= shower && t < wait && (
+        <>
+          <div style={{ fontSize: 180, lineHeight: 1 }}>🚿</div>
+          <Big size={92}>
+            THE FIX FINDS YOU
+            <br />
+            <span style={{ color: C.yellow }}>IN THE SHOWER.</span>
+          </Big>
+        </>
+      )}
+      {t >= wait && (
+        <>
+          <Big size={190} color={C.yellow}>
+            WAIT.
+          </Big>
+          <Big size={80}>I KNOW THE BUG.</Big>
+        </>
+      )}
       <Sound at={walkOut} sfx="steps" />
-      <Rank at={gone} color={C.yellow}>
-        THERAPY
-      </Rank>
-      <Reveal at={shower} sfx="pop">
-        <div style={{ fontSize: 200, lineHeight: 1 }}>🚿</div>
-      </Reveal>
+      <Sound at={shower} sfx="pop" />
+      <Sound at={wait} sfx="pop" />
     </Stage>
   );
 };
@@ -508,8 +524,7 @@ export const L7: React.FC = () => {
   const why = at(id, 2);
   const dnt = at(id, 3);
   const words = ["DO.", "NOT.", "TOUCH.", "IT."];
-  // "Do. Not. Touch. It." is spoken evenly; pace the words to the audio.
-  const wStep = (end(id, 3) - dnt) / 4;
+  // each word is its own voice clip, so it lands exactly with the audio
   return (
     <Stage
       id={id}
@@ -521,12 +536,11 @@ export const L7: React.FC = () => {
           { t: 0, x: -700, mood: "happy", lookX: 1 },
           { t: 0.9, x: -200, lookX: 1, lookY: -1 },
           { t: 1.0, mood: "think" },
-          { t: works, mood: "wow" },
-          { t: why, mood: "think" },
-          { t: dnt, mood: "wow", lookX: 0, lookY: 0 },
+          // deadpan: no big reactions, just staring at code that should not work
+          { t: why, mood: "tired" },
+          { t: dnt, lookX: 0, lookY: 0 },
         ],
       }}
-      punches={[dnt + wStep * 3]}
     >
       {t < dnt && (
         <>
@@ -552,7 +566,7 @@ export const L7: React.FC = () => {
       {t >= dnt && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
           {words.map((w, i) =>
-            t >= dnt + i * wStep ? (
+            t >= at(id, 3 + i) ? (
               <Big key={w} size={170} color={i === 3 ? C.red : C.yellow}>
                 {w}
               </Big>
@@ -562,7 +576,7 @@ export const L7: React.FC = () => {
           )}
         </div>
       )}
-      <Sound at={dnt + wStep * 3} sfx="impact" />
+      <Sound at={at(id, 6)} sfx="impact" volume={0.22} />
     </Stage>
   );
 };
@@ -573,6 +587,11 @@ export const CTA: React.FC = () => {
   const { t, frame } = useT();
   const numsAt = 1.0;
   const drop = at(id, 1);
+  const pulseAt = numsAt + 6 * 0.07 + 0.15;
+  const pulse = interpolate(t, [pulseAt, pulseAt + 0.12, pulseAt + 0.26], [1, 1.08, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
   // once all numbers are in, a selector hops across them like a picker
   const sel = t > drop ? Math.floor((frame / 5) % 7) : -1;
   return (
@@ -615,7 +634,7 @@ export const CTA: React.FC = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                scale: sel === i ? "1.12" : "1",
+                scale: sel === i ? "1.12" : n === 7 ? String(pulse) : "1",
               }}
             >
               {n}

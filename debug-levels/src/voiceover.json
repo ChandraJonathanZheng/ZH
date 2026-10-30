@@ -1,36 +1,29 @@
 [
   {
     "id": "hook",
-    "seconds": 4.939,
-    "frames": 149,
+    "seconds": 0.998,
+    "frames": 30,
     "lines": [
       {
         "text": null,
-        "say": "There are seven levels of debugging.",
+        "say": "Seven levels.",
         "file": "voiceover/hook-0.mp3",
         "start": 0.05,
-        "dur": 1.814
-      },
-      {
-        "text": null,
-        "say": "Level seven is where things get dangerous.",
-        "file": "voiceover/hook-1.mp3",
-        "start": 2.474,
-        "dur": 2.365
+        "dur": 0.898
       }
     ]
   },
   {
     "id": "intro",
-    "seconds": 2.138,
-    "frames": 65,
+    "seconds": 1.072,
+    "frames": 33,
     "lines": [
       {
-        "text": "I'm Chandra. *10 years* of debugging.",
-        "say": "I'm Chandra. Ten years of debugging.",
+        "text": null,
+        "say": "I've hit all seven.",
         "file": "voiceover/intro-0.mp3",
         "start": 0.05,
-        "dur": 1.988
+        "dur": 0.972
       }
     ]
   },
@@ -148,8 +141,8 @@
   },
   {
     "id": "l6",
-    "seconds": 3.527,
-    "frames": 106,
+    "seconds": 5.051,
+    "frames": 152,
     "lines": [
       {
         "text": null,
@@ -159,18 +152,25 @@
         "dur": 1.286
       },
       {
-        "text": "The fix finds you *in the shower.*",
+        "text": null,
         "say": "The fix finds you in the shower.",
         "file": "voiceover/l6-1.mp3",
         "start": 1.846,
         "dur": 1.431
+      },
+      {
+        "text": null,
+        "say": "Wait. I know the bug.",
+        "file": "voiceover/l6-2.mp3",
+        "start": 3.687,
+        "dur": 1.113
       }
     ]
   },
   {
     "id": "l7",
-    "seconds": 6.929,
-    "frames": 208,
+    "seconds": 9.1,
+    "frames": 273,
     "lines": [
       {
         "text": null,
@@ -195,10 +195,31 @@
       },
       {
         "text": null,
-        "say": "Do. Not. Touch. It.",
+        "say": "Do.",
         "file": "voiceover/l7-3.mp3",
-        "start": 5.288,
-        "dur": 1.292
+        "start": 5.338,
+        "dur": 0.596
+      },
+      {
+        "text": null,
+        "say": "Not.",
+        "file": "voiceover/l7-4.mp3",
+        "start": 6.213,
+        "dur": 0.611
+      },
+      {
+        "text": null,
+        "say": "Touch.",
+        "file": "voiceover/l7-5.mp3",
+        "start": 7.105,
+        "dur": 0.651
+      },
+      {
+        "text": null,
+        "say": "It.",
+        "file": "voiceover/l7-6.mp3",
+        "start": 8.115,
+        "dur": 0.534
       }
     ]
   },
